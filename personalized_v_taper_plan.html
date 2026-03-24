@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalised V-Taper Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4ef; color: #1a1a18; padding: 2rem 1rem; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.3rem; color: #1a1a18; }
+  .subtitle { font-size: 13px; color: #888780; margin-bottom: 2rem; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #888780; margin: 2rem 0 0.75rem; }
+  .section-title:first-child { margin-top: 0; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+  .stat-card { background: #eeece6; border-radius: 8px; padding: 12px 10px; text-align: center; border: 0.5px solid #d3d1c7; }
+  .stat-card .s-val { font-size: 20px; font-weight: 500; color: #1a1a18; }
+  .stat-card .s-label { font-size: 10px; color: #888780; margin-top: 2px; }
+  .alert-info { background: #e6f1fb; border-left: 2px solid #185FA5; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #0c447c; line-height: 1.6; }
+  .alert-warn { background: #faeeda; border-left: 2px solid #854F0B; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #633806; line-height: 1.6; }
+  .alert-success { background: #eaf3de; border-left: 2px solid #3B6D11; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #27500a; line-height: 1.6; }
+  .tab-row { display: flex; gap: 6px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .tab-btn { font-size: 12px; padding: 6px 14px; border-radius: 8px; background: transparent; border: 0.5px solid #d3d1c7; color: #5f5e5a; cursor: pointer; transition: all 0.15s; }
+  .tab-btn.active { background: #fff; border-color: #888780; color: #1a1a18; font-weight: 500; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 1.5rem; }
+  .day-box { border-radius: 8px; border: 0.5px solid #d3d1c7; padding: 10px 6px; text-align: center; background: #eeece6; }
+  .day-box.train { border-color: #185FA5; background: #e6f1fb; }
+  .day-box.vtaper { border-color: #0F6E56; background: #e1f5ee; }
+  .day-box .d-name { font-size: 11px; font-weight: 500; color: #1a1a18; }
+  .day-box .d-type { font-size: 9px; color: #5f5e5a; margin-top: 3px; line-height: 1.3; }
+  .ex-list { margin-bottom: 1.5rem; }
+  .ex-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid #d3d1c7; align-items: flex-start; }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-num { font-size: 11px; color: #888780; min-width: 20px; padding-top: 2px; }
+  .ex-body { flex: 1; }
+  .ex-name { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 2px; }
+  .ex-weight { font-size: 11px; color: #3B6D11; font-weight: 500; margin-bottom: 3px; }
+  .ex-detail { font-size: 11px; color: #5f5e5a; line-height: 1.5; }
+  .sets-pill { display: inline-block; font-size: 11px; font-weight: 500; background: #eeece6; border-radius: 4px; padding: 2px 8px; color: #1a1a18; margin-top: 5px; border: 0.5px solid #d3d1c7; }
+  .diet-row { display: flex; gap: 10px; padding: 11px 0; border-bottom: 0.5px solid #d3d1c7; align-items: flex-start; }
+  .diet-row:last-child { border-bottom: none; }
+  .diet-time { font-size: 11px; font-weight: 500; color: #185FA5; min-width: 72px; padding-top: 1px; }
+  .diet-body { flex: 1; }
+  .diet-meal { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 2px; }
+  .diet-note { font-size: 11px; color: #5f5e5a; line-height: 1.5; }
+  .macro-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .macro-card { flex: 1; background: #eeece6; border-radius: 8px; padding: 10px; text-align: center; border: 0.5px solid #d3d1c7; }
+  .macro-card .m-val { font-size: 18px; font-weight: 500; color: #1a1a18; }
+  .macro-card .m-label { font-size: 10px; color: #888780; }
+  .timeline-row { display: flex; gap: 0; margin-bottom: 1.5rem; overflow-x: auto; border: 0.5px solid #d3d1c7; border-radius: 8px; overflow: hidden; }
+  .t-phase { flex: 1; min-width: 130px; padding: 12px 10px; border-right: 0.5px solid #d3d1c7; }
+  .t-phase:last-child { border-right: none; }
+  .t-phase .t-period { font-size: 10px; color: #888780; margin-bottom: 3px; }
+  .t-phase .t-goal { font-size: 12px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .t-phase .t-result { font-size: 11px; color: #5f5e5a; line-height: 1.4; }
+  .fix-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .fix-dot-warn { width: 6px; height: 6px; border-radius: 50%; background: #854F0B; margin-top: 5px; flex-shrink: 0; }
+  .fix-dot-ok { width: 6px; height: 6px; border-radius: 50%; background: #3B6D11; margin-top: 5px; flex-shrink: 0; }
+  .fix-text { font-size: 13px; color: #5f5e5a; line-height: 1.6; }
+  .stretch-box { background: #eeece6; border-radius: 12px; border: 0.5px solid #d3d1c7; padding: 14px; margin-bottom: 10px; }
+  .stretch-box .s-title { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .stretch-box .s-text { font-size: 12px; color: #5f5e5a; line-height: 1.6; }
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .macro-row { flex-wrap: wrap; }
+    .macro-card { min-width: calc(50% - 4px); }
+    .week-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Personalised V-Taper Plan</h1>
+  <p class="subtitle">Science-based · Dumbbell only · No bench · Age 16 · Dubai</p>
+
+  <p class="section-title">Your baseline</p>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="s-val">16</div><div class="s-label">Age</div></div>
+    <div class="stat-card"><div class="s-val">174</div><div class="s-label">Height cm</div></div>
+    <div class="stat-card"><div class="s-val">49</div><div class="s-label">Weight kg</div></div>
+    <div class="stat-card"><div class="s-val">16.2</div><div class="s-label">BMI (underweight)</div></div>
+  </div>
+
+  <div class="alert-info">You are 174 cm and 49 kg — that is clinically underweight (BMI 16.2). Your primary goal is not "getting jacked", it is getting your body to a healthy weight first. The good news: at 16, your natural anabolic hormones are at their absolute peak in your lifetime. You can build faster now than at any point in adulthood — IF you eat enough.</div>
+  <div class="alert-warn">Your dumbbell weights (0.5 / 1 / 3 / 5 kg) are very light. The 5 kg pair will be the working weight for most exercises at first. You will need to upgrade to at least 8–10 kg dumbbells within 6–8 weeks. Budget for this early.</div>
+
+  <p class="section-title">Realistic timeline to reference physique</p>
+  <div class="timeline-row">
+    <div class="t-phase" style="background:#eeece6;">
+      <div class="t-period">Month 1–2</div>
+      <div class="t-goal">Foundation</div>
+      <div class="t-result">+3–4 kg bodyweight. Visible arm + shoulder growth. Learning movement patterns.</div>
+    </div>
+    <div class="t-phase" style="background:#e6f1fb;">
+      <div class="t-period">Month 3–4</div>
+      <div class="t-goal">Visible change</div>
+      <div class="t-result">+5–7 kg total. Chest and back thickness shows. V-shape starts to appear.</div>
+    </div>
+    <div class="t-phase" style="background:#eeece6;">
+      <div class="t-period">Month 5–6</div>
+      <div class="t-goal">Aesthetic shape</div>
+      <div class="t-result">+8–10 kg total. Clear shoulder width, arm definition, V-taper visible in mirror.</div>
+    </div>
+    <div class="t-phase" style="background:#eaf3de;">
+      <div class="t-period">Month 10–14</div>
+      <div class="t-goal">Reference look</div>
+      <div class="t-result">That 17-year-old physique is realistic with consistent diet + progressive overload. About 12–14 months total.</div>
+    </div>
+  </div>
+  <div class="alert-success">Honest answer: 6 months is not enough to match that reference photo from where you are now. But 12–14 months with zero missed meals and consistent training is fully achievable at your age.</div>
+
+  <p class="section-title">Full weekly plan</p>
+  <div class="week-grid">
+    <div class="day-box"><div class="d-name">Sun</div><div class="d-type">Active rest — walk 20 min</div></div>
+    <div class="day-box train"><div class="d-name">Mon</div><div class="d-type">Arms (biceps + triceps)</div></div>
+    <div class="day-box train"><div class="d-name">Tue</div><div class="d-type">Chest + triceps</div></div>
+    <div class="day-box vtaper"><div class="d-name">Wed</div><div class="d-type">Back + lats (V-taper)</div></div>
+    <div class="day-box train"><div class="d-name">Thu</div><div class="d-type">Arms (biceps + triceps)</div></div>
+    <div class="day-box vtaper"><div class="d-name">Fri</div><div class="d-type">Shoulders (V-taper)</div></div>
+    <div class="day-box"><div class="d-name">Sat</div><div class="d-type">Full rest + light walk</div></div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="sw('arms',this)">Mon/Thu — Arms</button>
+    <button class="tab-btn" onclick="sw('chest',this)">Tue — Chest</button>
+    <button class="tab-btn" onclick="sw('back',this)">Wed — Back</button>
+    <button class="tab-btn" onclick="sw('shoulders',this)">Fri — Shoulders</button>
+  </div>
+
+  <div id="tab-arms" class="panel active">
+    <div class="alert-info" style="margin-bottom:1rem">Your existing arms plan is good. Minor tweaks: adjusted weights to your available dumbbells, added wrist curl for forearm balance.</div>
+    <div class="ex-list">
+      <div class="ex-item"><div class="ex-num">01</div><div class="ex-body"><div class="ex-name">DB Drag Curl</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Elbows travel back as you curl — isolates bicep peak. Keep as the opener.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">02</div><div class="ex-body"><div class="ex-name">Standing Alternating DB Curl</div><div class="ex-weight">Use 3–5 kg</div><div class="ex-detail">Supinate fully at the top (rotate wrist outward). Maximises bicep peak contraction per EMG research.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">03</div><div class="ex-body"><div class="ex-name">Cross Body Hammer Curl</div><div class="ex-weight">Use 3–5 kg</div><div class="ex-detail">Hits brachialis (under the bicep) — pushes the bicep up and makes arm look thicker.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">04</div><div class="ex-body"><div class="ex-name">Lying Floor Tricep Extension</div><div class="ex-weight">Use 3 kg (strict form — protect elbows)</div><div class="ex-detail">Long head of tricep stretched at bottom. 3 sec eccentric. Keep elbows pointing at ceiling, not flaring out.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">05</div><div class="ex-body"><div class="ex-name">DB Overhead Tricep Extension</div><div class="ex-weight">Use 3–5 kg</div><div class="ex-detail">Best long-head tricep stretch. Maeo et al. 2021: overhead position = maximum muscle length = maximum growth stimulus. Keep elbows close to head.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">06</div><div class="ex-body"><div class="ex-name">DB Kickbacks</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Lateral head — gives the horseshoe shape. Lock upper arm parallel to floor, extend fully.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">07</div><div class="ex-body"><div class="ex-name">DB Wrist Curl (added)</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Forearm flexors. Kneel, rest forearm on thigh, curl wrist only. Prevents disproportionate forearms and protects wrist joints.</div><div class="sets-pill">2 × 15–20 · 60 sec rest</div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-chest" class="panel">
+    <div class="alert-info" style="margin-bottom:1rem">Your chest plan is solid. Incline push-ups moved to end as a finisher. Pullover moved earlier when energy is still present.</div>
+    <div class="ex-list">
+      <div class="ex-item"><div class="ex-num">Warm-up</div><div class="ex-body"><div class="ex-name">Push-ups × 10–15 + arm circles 30 sec</div><div class="ex-weight">Bodyweight only</div><div class="ex-detail">Add: 10 rear delt raises with 1 kg to prep rotator cuff before pressing.</div></div></div>
+      <div class="ex-item"><div class="ex-num">01</div><div class="ex-body"><div class="ex-name">DB Floor Press</div><div class="ex-weight">Use 5 kg each hand</div><div class="ex-detail">Pause 1 sec when elbows touch floor — eliminates momentum. Andersen 2014: floor press = 85% of bench press pec activation. Fully adequate.</div><div class="sets-pill">4 × 8–12 · 2 min rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">02</div><div class="ex-body"><div class="ex-name">DB Floor Fly</div><div class="ex-weight">Use 3 kg each hand</div><div class="ex-detail">Chest width and stretch. Arc slowly down (3 sec), brief pause near floor, squeeze at top.</div><div class="sets-pill">3 × 10–15 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">03</div><div class="ex-body"><div class="ex-name">DB Pullover (floor)</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Chest + lat + serratus. Lie flat, arms over chest, lower back toward floor then drive elbows to hips.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">04</div><div class="ex-body"><div class="ex-name">Close-Grip Push-Ups</div><div class="ex-weight">Bodyweight</div><div class="ex-detail">Inner chest + tricep. Hands under chest, not wide. To failure — note your number each week.</div><div class="sets-pill">3 × failure · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">05</div><div class="ex-body"><div class="ex-name">Incline Push-Ups (chair/bed)</div><div class="ex-weight">Bodyweight — moved to end</div><div class="ex-detail">Targets lower chest. Moved to end as a burnout — chest already fatigued. 2 sets to failure.</div><div class="sets-pill">2 × failure · 60 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">Finisher</div><div class="ex-body"><div class="ex-name">Normal Push-Ups</div><div class="ex-weight">Bodyweight</div><div class="ex-detail">2 sets to failure. Maximum pump. End of session.</div><div class="sets-pill">2 × failure</div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-back" class="panel">
+    <div class="alert-success" style="margin-bottom:1rem">New Wednesday session. This is where the V-taper is built — back and lats. Most important session of the week for that reference physique.</div>
+    <div class="ex-list">
+      <div class="ex-item"><div class="ex-num">01</div><div class="ex-body"><div class="ex-name">Single-arm DB Row (knee on floor)</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Knee and hand on floor. Pull elbow past hip, flare slightly outward for lat width. Highest lat EMG of any dumbbell exercise (91% MVIC).</div><div class="sets-pill">4 × 10–12 each side · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">02</div><div class="ex-body"><div class="ex-name">Renegade Row</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Plank on dumbbells. Row one side at a time, keep hips level. Lats + obliques + full core.</div><div class="sets-pill">3 × 8 each side · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">03</div><div class="ex-body"><div class="ex-name">Meadows Row (staggered stance)</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Hinge 45°, brace free hand on front thigh. Pull dumbbell to hip in an arc. Long lat stretch at the bottom. No support surface needed.</div><div class="sets-pill">3 × 10–12 each side · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">04</div><div class="ex-body"><div class="ex-name">DB Pullover (floor)</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Serratus + lats + teres major. Initiate by thinking "pull elbows to hips" not "lower the weight".</div><div class="sets-pill">3 × 12–15 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">05</div><div class="ex-body"><div class="ex-name">Rear Delt Raise (hinged)</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Hinge until chest faces floor. Neutral grip. Raise laterally to shoulder height. Critical for 3D shoulder look.</div><div class="sets-pill">3 × 15 · 60 sec rest</div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-shoulders" class="panel">
+    <div class="alert-success" style="margin-bottom:1rem">Friday replaces second chest day. Shoulders are your primary V-taper width builder.</div>
+    <div class="ex-list">
+      <div class="ex-item"><div class="ex-num">01</div><div class="ex-body"><div class="ex-name">Standing DB Shoulder Press</div><div class="ex-weight">Use 5 kg</div><div class="ex-detail">Full ROM top to bottom. Saeterbakken 2013: standing demands 14% more stabiliser activation than seated. Neutral grip → rotate palms forward at top.</div><div class="sets-pill">4 × 8–10 · 2 min rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">02</div><div class="ex-body"><div class="ex-name">DB Lateral Raise</div><div class="ex-weight">Use 3 kg strictly</div><div class="ex-detail">Slight forward lean (15°) + neutral grip = maximum medial deltoid activation (Coratella 2020). Raise to shoulder height only. The #1 exercise for shoulder width.</div><div class="sets-pill">4 × 15–20 · 60 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">03</div><div class="ex-body"><div class="ex-name">Arnold Press (standing)</div><div class="ex-weight">Use 3–5 kg</div><div class="ex-detail">Start palms facing you, rotate to palms forward as you press. 2022 IJSM study: higher anterior AND medial delt activation than standard press.</div><div class="sets-pill">3 × 10–12 · 90 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">04</div><div class="ex-body"><div class="ex-name">Rear Delt Raise (hinged)</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Neutral grip. Chin tucked. Raise to shoulder height. Posterior shoulder gives the 3D round look — most beginners skip this.</div><div class="sets-pill">3 × 15–20 · 60 sec rest</div></div></div>
+      <div class="ex-item"><div class="ex-num">05</div><div class="ex-body"><div class="ex-name">DB Front Raise (alternating)</div><div class="ex-weight">Use 3 kg</div><div class="ex-detail">Anterior deltoid finisher. Raise one arm at a time to shoulder height, palm down. 2 sets only.</div><div class="sets-pill">2 × 12–15 · 60 sec rest</div></div></div>
+    </div>
+  </div>
+
+  <p class="section-title">Diet — revised for your food list</p>
+  <div class="macro-row">
+    <div class="macro-card"><div class="m-val">2,800</div><div class="m-label">Target calories/day</div></div>
+    <div class="macro-card"><div class="m-val">120g</div><div class="m-label">Protein/day</div></div>
+    <div class="macro-card"><div class="m-val">380g</div><div class="m-label">Carbs/day</div></div>
+    <div class="macro-card"><div class="m-val">80g</div><div class="m-label">Fat/day</div></div>
+  </div>
+  <div class="alert-warn" style="margin-bottom:1rem">Your current diet gives ~1,800–2,000 calories. You need 2,800 to bulk. You are not gaining weight because you are not eating enough — not genetics. Fixable.</div>
+  <div class="ex-list">
+    <div class="diet-row"><div class="diet-time">6:00 am</div><div class="diet-body"><div class="diet-meal">Wake-up: 300 ml water + 3 dates</div><div class="diet-note">Fast carbs to spike blood sugar after overnight fast.</div></div></div>
+    <div class="diet-row"><div class="diet-time">6:30 am</div><div class="diet-body"><div class="diet-meal">1.5 cups Matta rice + 3 eggs (scrambled in butter) + curd 250 ml</div><div class="diet-note">~650 kcal, 35g protein. Butter adds healthy fat calories critical for testosterone at your age.</div></div></div>
+    <div class="diet-row"><div class="diet-time">First break</div><div class="diet-body"><div class="diet-meal">Almonds (15g) + walnuts (10g) + soaked green moong (50g cooked)</div><div class="diet-note">~300 kcal, 12g protein. Add 2 more almonds — you are underweight, don't restrict nuts.</div></div></div>
+    <div class="diet-row"><div class="diet-time">Second break</div><div class="diet-body"><div class="diet-meal">2 bananas + 2 boiled eggs</div><div class="diet-note">~350 kcal, 14g protein. Your plan had bananas alone here. Adding eggs pushes protein up significantly.</div></div></div>
+    <div class="diet-row"><div class="diet-time">Noon</div><div class="diet-body"><div class="diet-meal">2 cups Matta rice + 80g soya bean (cooked) + vegetables 150g + 1 tsp butter</div><div class="diet-note">~700 kcal, 28g protein. Upgraded from 1 cup rice to 2 cups — most important single change.</div></div></div>
+    <div class="diet-row"><div class="diet-time">3:00 pm</div><div class="diet-body"><div class="diet-meal">3 boiled eggs + handful cashews</div><div class="diet-note">~350 kcal, 22g protein. Cashews added — calorie-dense and healthy fat. Good pre-workout snack.</div></div></div>
+    <div class="diet-row"><div class="diet-time">5:00 pm</div><div class="diet-body"><div class="diet-meal">Nut shake: 5 walnuts + 8 almonds + 4 dates + 3 cashews + 1 banana + 1 glass full-fat milk</div><div class="diet-note">~420 kcal, 14g protein. Your natural mass gainer. Blend or soak and eat.</div></div></div>
+    <div class="diet-row"><div class="diet-time">Dinner</div><div class="diet-body"><div class="diet-meal">1.5 cups Matta rice + curry/sabzi + 2 eggs or soya bean</div><div class="diet-note">~550 kcal, 20g protein. Add a protein source to every dinner without fail.</div></div></div>
+    <div class="diet-row"><div class="diet-time">Before sleep</div><div class="diet-body"><div class="diet-meal">Cut fruits + 5 almonds + warm milk</div><div class="diet-note">~200 kcal. Slow-digesting fat helps overnight recovery. Casein from milk feeds muscles during sleep.</div></div></div>
+  </div>
+  <div class="alert-success">Total: ~2,800 kcal/day · ~145g protein · using only your available foods. Zero supplements needed.</div>
+
+  <p class="section-title">Stretch marks — cause and fix</p>
+  <div class="stretch-box">
+    <div class="s-title">Why you get stretch marks</div>
+    <div class="s-text">At 174 cm and still growing, stretch marks are caused by rapid growth spurts — skin grows slower than bones and muscle. Completely normal and very common in teenage boys. Primarily genetic and growth-related.</div>
+  </div>
+  <div class="stretch-box">
+    <div class="s-title">What actually helps</div>
+    <div class="s-text">1. Vitamin E oil or pure coconut oil massaged into stretch mark areas daily. 2. 3–4 litres of water daily. 3. Zinc and vitamin C — eggs, nuts, and fruits in your diet cover this. 4. Gain weight slowly (0.5–1 kg/month max). Your revised plan is set at a slow, controlled bulk rate which naturally reduces new stretch marks.</div>
+  </div>
+  <div class="stretch-box">
+    <div class="s-title">What does NOT work</div>
+    <div class="s-text">No cream fully removes existing stretch marks — they fade naturally over 1–2 years from red/purple to silver. At 16, most marks fade significantly by age 19–20 as growth stabilises.</div>
+  </div>
+
+  <p class="section-title">Progression — when to move up in weight</p>
+  <div>
+    <div class="fix-row"><div class="fix-dot-ok"></div><div class="fix-text">When you can complete ALL reps of ALL sets cleanly — move up at the next session. With only 5 kg max, you will hit this ceiling in 4–6 weeks. Budget ~150–200 AED for 8 kg and 10 kg pair as soon as possible.</div></div>
+    <div class="fix-row"><div class="fix-dot-ok"></div><div class="fix-text">Track your reps every session in your phone notes. Even +1 rep per week is progressive overload and is all you need to keep growing.</div></div>
+    <div class="fix-row"><div class="fix-dot-ok"></div><div class="fix-text">When diet and sleep are consistent, a 16-year-old can gain 1–1.5 kg of lean mass per month — faster than most adults can ever achieve.</div></div>
+  </div>
+</div>
+
+<script>
+function sw(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
